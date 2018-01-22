@@ -496,13 +496,115 @@ zkCli.sh -Dzookeeper.DigestAuthenticationProvider.superDigest=admin:015uTByzA4zS
 ```
 
 
+##lession03: 客户端和集群
 
+* 了解客户端的基本使用;
+* 了解如何搭建集群和集群如何处理请求；
 
+### 客户端的使用
+```
+主要是原生API的使用，包括：
+1、创建连接；
+2、创建节点；
+3、查询节点；
+4、更新节点；
+5、获取子节点；
+6、Watcher使用；
+7、授权API；
+其实在lession1，2中基本已经介绍过，详情看：lession03/ApiTest.java
+```
+### 集群搭建和处理请求
+* 本机搭建集群
+```
+[1, 复制zk包]
+drwxr-xr-x@ 23 zhiping.wangsh  staff   782B  1 20 11:36 zk01
+drwxr-xr-x@ 23 zhiping.wangsh  staff   782B  1 20 11:41 zk02
+drwxr-xr-x@ 23 zhiping.wangsh  staff   782B  1 20 11:42 zk03
 
+[2, 配置zoo.cfg]
+[
+    zk01: 
+    clientPort=2182
+    dataDir=dataDir=/Users/zhiping.wangsh/zookeeper/zkcluster/zk01/data
+    server.1=127.0.0.1:2111:3111
+    server.2=127.0.0.1:3222:4222
+    server.3=127.0.0.1:4333:5444
+]
+[
+    zk02:
+    clientPort=2183
+    dataDir=dataDir=/Users/zhiping.wangsh/zookeeper/zkcluster/zk02/data
+    server.1=127.0.0.1:2111:3111
+    server.2=127.0.0.1:3222:4222
+    server.3=127.0.0.1:4333:5444 
+]
+[
+    zk03:
+    clientPort=2184
+    dataDir=dataDir=/Users/zhiping.wangsh/zookeeper/zkcluster/zk03/data
+    server.1=127.0.0.1:2111:3111
+    server.2=127.0.0.1:3222:4222
+    server.3=127.0.0.1:4333:5444 
+]
+[3, 增加myid文件]
+[zk01, 创建data/myid文件 内容为1]
+[zk02, 创建data/myid文件 内容为2]
+[zk03, 创建data/myid文件 内容为4]
 
+[4, 启动集群]
+zk01/bin/zkServer.sh start
+zk01/bin/zkServer.sh start
+zk01/bin/zkServer.sh start
 
+[5, 查看状态]
+zk01/bin/zkServer.sh status  
+zk01/bin/zkServer.sh status
+zk01/bin/zkServer.sh status 
 
+可以查看节点的类型，例如；follower和leader
 
+[6, 客户端连接]
+zk01/bin/zkCli.sh -server 127.0.0.1:2182
+zk02/bin/zkCli.sh -server 127.0.0.1:2183
+zk03/bin/zkCli.sh -server 127.0.0.1:2184
+```
+* 简单测试[集群测试]
+```
+[zk: 127.0.0.1:2182(CONNECTED) 5] create -e /zkCluster cluster
+create -e /zkCluster cluster
+Created /zkCluster
+
+[zk: 127.0.0.1:2183(CONNECTED) 3] ls /
+ls /
+[acl_node, zookeeper, zkCluster, acl_node_ip, acl_digest1, lession02_async, acl_digest, znode_s0000000014, lession02_pr_seq0000000023, acl_auth, znode_p, acl_ip, lession02_pr, lession_watcher, acl_node_digest, watch_node, zk_test]
+
+[zk: 127.0.0.1:2184(CONNECTED) 4] ls /
+ls /
+[acl_node, zookeeper, zkCluster, acl_node_ip, acl_digest1, lession02_async, acl_digest, znode_s0000000014, lession02_pr_seq0000000023, acl_auth, znode_p, acl_ip, lession02_pr, lession_watcher, acl_node_digest, watch_node, zk_test]
+
+无论你在哪个节点创建节点，在其他节点都可见，原理相关后续介绍。
+```
+
+## lession04:curator开源框架
+
+```
+详情见代码：
+特点：
+[1] 支持同步连接和重连；
+[2] 支持一次注册，持续监听Wathcer（NodeCache, PathChildrenCache, TreeCache）
+[3] Fluent Api风格；
+[4] 支持递归创建节点；
+
+```
+
+## lession05:选举和数据一致性
+
+## lession06:深度分析
+
+## lession07:实战-配置管理
+## lession08:实战-分布式锁
+## lession09:实战-运维要点
+## lession10:实战-运维和监控WEB平台搭建和使用
 
 
 
